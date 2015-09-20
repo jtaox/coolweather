@@ -4,18 +4,8 @@ package com.jtao.coolweather.model;
  * Created by Tap on 2015/9/19.
  */
 public class City {
-    private int id;
     private String cityName;
-    private String cityCode;
-    private String provinceId;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    private String pyProvinceName;
 
     public String getCityName() {
         return cityName;
@@ -25,19 +15,11 @@ public class City {
         this.cityName = cityName;
     }
 
-    public String getCityCode() {
-        return cityCode;
+    public String getPyProvinceName() {
+        return pyProvinceName;
     }
 
-    public void setCityCode(String cityCode) {
-        this.cityCode = cityCode;
-    }
-
-    public String getProvinceId() {
-        return provinceId;
-    }
-
-    public void setProvinceId(String provinceId) {
-        this.provinceId = provinceId;
+    public void setPyProvinceName(String pyProvinceName) {
+        this.pyProvinceName = pyProvinceName;
     }
 }

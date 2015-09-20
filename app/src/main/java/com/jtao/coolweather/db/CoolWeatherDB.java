@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.jtao.coolweather.model.City;
-import com.jtao.coolweather.model.County;
 import com.jtao.coolweather.model.Province;
 
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ import java.util.List;
 /**
  * Created by Tap on 2015/9/19.
  */
+
 public class CoolWeatherDB {
     /**
      * 数据库名
@@ -55,14 +55,17 @@ public class CoolWeatherDB {
      * 保存Province实例
      * @param province
      */
+
     public void saveProvince(Province province){
         if(province != null){
             ContentValues values = new ContentValues();
-            values.put("province_name", province.getProvinceName());
-            values.put("province_code", province.getProvinceCode());
+            values.put("quName", province.getQuName());
+            values.put("pyName", province.getPyName());
+            values.put("cityName", province.getCityName());
             db.insert("Province", null, values);
         }
     }
+
 
     /**
      * 获取所有省份
@@ -74,9 +77,9 @@ public class CoolWeatherDB {
         if (cursor.moveToFirst()) {
             do {
                 Province province = new Province();
-                province.setId(cursor.getInt(cursor.getColumnIndex("id")));
-                province.setProvinceName(cursor.getString(cursor.getColumnIndex("province_name")));
-                province.setProvinceCode(cursor.getString(cursor.getColumnIndex("province_code")));
+                province.setQuName(cursor.getString(cursor.getColumnIndex("quName")));
+                province.setPyName(cursor.getString(cursor.getColumnIndex("pyName")));
+                province.setCityName(cursor.getString(cursor.getColumnIndex("cityName")));
                 list.add(province);
             } while (cursor.moveToNext());
         }
@@ -94,8 +97,7 @@ public class CoolWeatherDB {
         if(city != null){
             ContentValues values = new ContentValues();
             values.put("city_name", city.getCityName());
-            values.put("city_code", city.getCityCode());
-            values.put("province_id", city.getProvinceId());
+            values.put("pyProvinceName", city.getPyProvinceName());
             db.insert("City", null, null);
         }
     }
@@ -111,10 +113,8 @@ public class CoolWeatherDB {
         if(cursor.moveToFirst()){
             do {
                 City city = new City();
-                city.setId(cursor.getInt(cursor.getColumnIndex("id")));
                 city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
-                city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
-                city.setProvinceId(String.valueOf(provinceId));
+                city.setPyProvinceName(cursor.getString(cursor.getColumnIndex("pyProvinceName")));
                 list.add(city);
             } while (cursor.moveToNext());
         }
@@ -124,11 +124,13 @@ public class CoolWeatherDB {
         return list;
     }
 
-    /**
-     * 将County实例存储到数据库
-     * @param county
-     */
-    public void saveCounty(County county){
+
+    public void close(){
+        db.close();
+        db = null;
+    }
+
+  /*  public void saveCounty(County county){
         ContentValues values = new ContentValues();
         values.put("county_name", county.getCountyName());
         values.put("county_code", county.getCountyCode());
@@ -153,5 +155,5 @@ public class CoolWeatherDB {
         }
         return list;
 
-    }
+    }*/
 }

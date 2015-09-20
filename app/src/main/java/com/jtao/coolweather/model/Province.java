@@ -4,31 +4,41 @@ package com.jtao.coolweather.model;
  * Created by Tap on 2015/9/19.
  */
 public class Province {
-    private int id;
-    private String provinceName;
-    private String provinceCode;
 
-    public int getId() {
-        return id;
+    private String quName;
+    private String pyName;
+    private String CityName;
+
+    public String getQuName() {
+        return quName;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setQuName(String quName) {
+        this.quName = quName;
     }
 
-    public String getProvinceName() {
-        return provinceName;
+    public String getPyName() {
+        return pyName;
     }
 
-    public void setProvinceName(String provinceName) {
-        this.provinceName = provinceName;
+    public void setPyName(String pyName) {
+        this.pyName = pyName;
     }
 
-    public String getProvinceCode() {
-        return provinceCode;
+    public String getCityName() {
+        return CityName;
     }
 
-    public void setProvinceCode(String provinceCode) {
-        this.provinceCode = provinceCode;
+    public void setCityName(String cityName) {
+        CityName = cityName;
+    }
+
+    @Override
+    public String toString() {
+        return "----->Province{" +
+                "quName='" + quName + '\'' +
+                ", pyName='" + pyName + '\'' +
+                ", CityName='" + CityName + '\'' +
+                '}';
     }
 }
