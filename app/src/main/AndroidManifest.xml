@@ -14,7 +14,7 @@
         android:name=".activity.MyApplication">
 
 
-        <activity android:name=".activity.ChooseAreaActivity" android:label="我的天气" >
+        <activity android:name="com.jtao.coolweather.activity.ChooseAreaActivity" android:label="我的天气" >
             <intent-filter >
                  <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

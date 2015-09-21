@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.jtao.coolweather.model.City;
 import com.jtao.coolweather.model.Province;
@@ -62,6 +63,7 @@ public class CoolWeatherDB {
             values.put("quName", province.getQuName());
             values.put("pyName", province.getPyName());
             values.put("cityName", province.getCityName());
+            Log.d("ChooseAreaActivity", "province db 是空 ？==" + (db == null ? "为空" : "有数据"));
             db.insert("Province", null, values);
         }
     }
@@ -96,9 +98,12 @@ public class CoolWeatherDB {
     public void saveCity(City city){
         if(city != null){
             ContentValues values = new ContentValues();
+            Log.d("ChooseAreaActivity", "contentvalues :" + city.toString());
             values.put("city_name", city.getCityName());
             values.put("pyProvinceName", city.getPyProvinceName());
-            db.insert("City", null, null);
+            values.put("pyName", city.getPyName());
+            Log.d("ChooseAreaActivity", "City db 是空 ？==" + (db == null ? "为空" : "有数据"));
+            db.insert("City", null, values);
         }
     }
 
@@ -115,6 +120,7 @@ public class CoolWeatherDB {
                 City city = new City();
                 city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
                 city.setPyProvinceName(cursor.getString(cursor.getColumnIndex("pyProvinceName")));
+                city.setPyName(cursor.getString(cursor.getColumnIndex("pyName")));
                 list.add(city);
             } while (cursor.moveToNext());
         }

@@ -5,6 +5,7 @@ package com.jtao.coolweather.model;
  */
 public class City {
     private String cityName;
+    private String pyName;
     private String pyProvinceName;
 
     public String getCityName() {
@@ -21,5 +22,22 @@ public class City {
 
     public void setPyProvinceName(String pyProvinceName) {
         this.pyProvinceName = pyProvinceName;
+    }
+
+    public String getPyName() {
+        return pyName;
+    }
+
+    public void setPyName(String pyName) {
+        this.pyName = pyName;
+    }
+
+    @Override
+    public String toString() {
+        return "City{" +
+                "cityName='" + cityName + '\'' +
+                ", pyName='" + pyName + '\'' +
+                ", pyProvinceName='" + pyProvinceName + '\'' +
+                '}';
     }
 }

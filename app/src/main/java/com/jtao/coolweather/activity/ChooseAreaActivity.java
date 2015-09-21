@@ -9,6 +9,7 @@ import com.jtao.coolweather.R;
 import com.jtao.coolweather.util.HttpUtil;
 import com.jtao.coolweather.util.LocationUtil;
 import com.jtao.coolweather.util.ObtainCitySet;
+import com.jtao.coolweather.util.ObtainProvinceSet;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -36,7 +37,8 @@ public class ChooseAreaActivity extends Activity {
         Location location = lu.requestLocation(this);
 
         ////////
-        new ObtainCitySet().execute("http://flash.weather.com.cn/wmaps/xml/china.xml");
+        new ObtainProvinceSet().execute("http://flash.weather.com.cn/wmaps/xml/china.xml");
+        new ObtainCitySet().execute("http://flash.weather.com.cn/wmaps/xml/shanxi.xml", "shanxi");
         ///////
 
         try {
