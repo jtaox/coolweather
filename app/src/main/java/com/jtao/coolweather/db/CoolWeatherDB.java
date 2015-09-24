@@ -75,7 +75,7 @@ public class CoolWeatherDB {
      */
     public List<Province> loadProvinces() {
         List<Province> list = new ArrayList<>();
-        Cursor cursor = db.query("Province", null, null, null, null, null, null);
+        Cursor cursor = db.query("Province", null, null, null, null, null, "pyName");
         if (cursor.moveToFirst()) {
             do {
                 Province province = new Province();
@@ -109,12 +109,12 @@ public class CoolWeatherDB {
 
     /**
      *获取指定province下所有city信息
-     * @param provinceId
+     * @param provinceName
      * @return
      */
-    public List<City> loadCities(int provinceId){
+    public List<City> loadCities(String provinceName){
         List<City> list = new ArrayList<>();
-        Cursor cursor = db.query("City", null, "province_dd = ?", new String[]{String.valueOf(provinceId)}, null, null, null); //查询该Province下所有城市信息
+        Cursor cursor = db.query("City", null, "pyProvinceName = ?", new String[]{String.valueOf(provinceName)}, null, null, null); //查询该Province下所有城市信息
         if(cursor.moveToFirst()){
             do {
                 City city = new City();
