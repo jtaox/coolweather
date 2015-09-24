@@ -177,6 +177,7 @@ public class ChooseAreaActivity extends Activity {
     private void queryProvinces() {
         provinceList = db.loadProvinces();
         if (provinceList.size() > 0) { //数据库中有数据
+            dataList.clear();
             Log.d("ChooseAreaActivity", "provinces size -->" + provinceList.size());
             for (Province province : provinceList) {
                 dataList.add(province.getQuName());
@@ -292,19 +293,6 @@ public class ChooseAreaActivity extends Activity {
 
     }
 
-    class MyHttpCallbackListener implements HttpCallbackListener {
-
-        @Override
-        public void onFinish(String response) {
-            Log.d("ChooseAreaActivity", response);
-        }
-
-        @Override
-        public void onError(Exception e) {
-
-        }
-    }
-
     /**
      * 打开进度对话框
      */
@@ -320,6 +308,37 @@ public class ChooseAreaActivity extends Activity {
     private void closeProgressDialog(){
         if(progressDialog != null){
             progressDialog.dismiss();
+        }
+    }
+
+    private long currentTiem = 0;
+    /**
+     * 捕获返回键，根据等级判断应该返回省列表，还是退出
+     */
+    @Override
+    public void onBackPressed() {
+        if(currentLevel == LEVEL_PROVINCE){
+            //finish();
+            if((System.currentTimeMillis() - currentTiem) < 2000){
+                finish();
+            }
+            currentTiem = System.currentTimeMillis();
+            Toast.makeText(ChooseAreaActivity.this, "再按一次推出程序", Toast.LENGTH_SHORT).show();
+        } else if(currentLevel == LEVEL_CITY){
+            queryProvinces();
+        }
+    }
+
+    class MyHttpCallbackListener implements HttpCallbackListener {
+
+        @Override
+        public void onFinish(String response) {
+            Log.d("ChooseAreaActivity", response);
+        }
+
+        @Override
+        public void onError(Exception e) {
+
         }
     }
 }
