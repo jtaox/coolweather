@@ -3,13 +3,19 @@ package com.jtao.coolweather.activity;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jtao.coolweather.R;
+import com.jtao.coolweather.model.Weather;
 import com.jtao.coolweather.util.HttpUtil;
+import com.jtao.coolweather.util.Utility;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Created by jtaob on 2015/9/24.
@@ -54,27 +60,37 @@ public class WeatherActivity extends Activity {
 
         String cityName = getIntent().getStringExtra("city_name");
 
-        if(TextUtils.isEmpty(cityName)){  //
+        if (TextUtils.isEmpty(cityName)) {  //
 
         } else { //查询天气
             publicText.setText("同步中...");
+            Log.d("ChooseAreaActivity", "----->" + cityName + "<----");
             weatherInfoLayout.setVisibility(View.INVISIBLE);
             cityNameText.setVisibility(View.INVISIBLE);
-
+            Log.d("ChooseAreaActivity", "地址：" + getAddress(cityName));
+            queryFromServer(getAddress(cityName));
         }
 
     }
 
 
-    private void queryWeatherInfo(String cityName){
+    private void queryWeatherInfo(String cityName) {
         String address = getAddress(cityName);
     }
 
-    private void queryFromServer(String address){
+    private void queryFromServer(String address) {
         HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
             @Override
             public void onFinish(String response) {
-
+                Log.d("ChooseAreaActivity", "----->" + response + "<----");
+                Weather weather = Utility.handleWeaeherResponse(response);
+                if (weather == null) {
+                    //服务器返回结果异常
+                    Log.d("ChooseAreaActivity", "服务器返回数据异常");
+                } else {
+                    Log.d("ChooseAreaActivity", "weather ----->" + weather.toString() + "<----");
+                    Utility.saveWeatherInfo(WeatherActivity.this, weather);
+                }
             }
 
             @Override
@@ -84,10 +100,23 @@ public class WeatherActivity extends Activity {
         });
     }
 
-    private String getAddress(String cityName){
+    private String getAddress(String cityName) {
         //http://api.map.baidu.com/telematics/v3/weather?location=北京&output=json&ak=yourkey
-    //http://api.map.baidu.com/telematics/v3/weather?location=" + cityName +"&mcode=AA:13:49:7E:3E:EA:59:70:E4:4C:CC:91:F2:FD:50:1E:68:C8:20:79;com.jtao.coolweather&output=json&ak=vX2ygLXn9Rhq8GOKHCcjbUs9";
-        return "http://api.map.baidu.com/telematics/v3/weather?location=\" + cityName +\"&mcode=AA:13:49:7E:3E:EA:59:70:E4:4C:CC:91:F2:FD:50:1E:68:C8:20:79;com.jtao.coolweather&output=json&ak=vX2ygLXn9Rhq8GOKHCcjbUs9";
+        //http://api.map.baidu.com/telematics/v3/weather?location=" + cityName +"&mcode=AA:13:49:7E:3E:EA:59:70:E4:4C:CC:91:F2:FD:50:1E:68:C8:20:79;com.jtao.coolweather&output=json&ak=vX2ygLXn9Rhq8GOKHCcjbUs9";
+        String encodedName = encode(cityName);
+        if(encodedName == null){
+            return null;
+        }
+        return "http://api.map.baidu.com/telematics/v3/weather?location=" + encodedName + "&mcode=AA:13:49:7E:3E:EA:59:70:E4:4C:CC:91:F2:FD:50:1E:68:C8:20:79;com.jtao.coolweather&output=json&ak=vX2ygLXn9Rhq8GOKHCcjbUs9";
+    }
+
+    private String encode(String name){
+        try {
+            return URLEncoder.encode(name, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void init() {

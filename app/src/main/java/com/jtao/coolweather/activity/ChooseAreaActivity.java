@@ -2,8 +2,11 @@ package com.jtao.coolweather.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -20,8 +23,6 @@ import com.jtao.coolweather.model.City;
 import com.jtao.coolweather.model.Province;
 import com.jtao.coolweather.util.HttpUtil;
 import com.jtao.coolweather.util.LocationUtil;
-import com.jtao.coolweather.util.ObtainCitySet;
-import com.jtao.coolweather.util.ObtainProvinceSet;
 import com.jtao.coolweather.util.XmlParser;
 
 import java.io.UnsupportedEncodingException;
@@ -77,6 +78,16 @@ public class ChooseAreaActivity extends Activity {
     private CoolWeatherDB db;
 
     private String str;
+
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what == 0){
+                adapter.notifyDataSetChanged();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +159,12 @@ public class ChooseAreaActivity extends Activity {
                 if(currentLevel == LEVEL_PROVINCE){
                     selectedProvince = provinceList.get(position);
                     queryCity();
+                } else if(currentLevel == LEVEL_CITY){
+                    String cityName = cityList.get(position).getCityName();
+                    Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+                    intent.putExtra("city_name", cityName);
+                    startActivity(intent);
+                    finish();
                 }
 
             }
@@ -260,6 +277,8 @@ public class ChooseAreaActivity extends Activity {
                         dataList.add(province.getQuName());
                         db.saveProvince(province);
                     }
+                    //adapter.notifyDataSetChanged(); //防止异常
+                    handler.sendEmptyMessage(0);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -269,7 +288,7 @@ public class ChooseAreaActivity extends Activity {
                     });
 
                 } else if ("city".equals(type)) { //城市
-                    cityList = XmlParser.parserCityXMLWithPull(response, address);
+                    cityList = XmlParser.parserCityXMLWithPull(response, provinceName);
                     for (City city : cityList) {
                         dataList.add(city.getCityName());
                         db.saveCity(city);

@@ -4,6 +4,7 @@ import org.json.JSONArray;
 
 /**
  * Created by jtaob on 2015/9/24.
+ * 生活指数类
  */
 public class Index{
     public String title;
