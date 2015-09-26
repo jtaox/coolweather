@@ -24,6 +24,8 @@ public class LocationUtil {
 
     private LocationManager locationManager;
 
+    public boolean isLocationListener;
+
     public Location requestLocation(Context context) {
 
         String provider = null;
@@ -76,7 +78,7 @@ public class LocationUtil {
 
             }
         };
-
+        isLocationListener = true;
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000, 1, locationListener);
     }
 
@@ -85,6 +87,7 @@ public class LocationUtil {
      */
     public void removeLocationUpdates(){
         locationManager.removeUpdates(locationListener);
+        isLocationListener = false;
     }
 
 }

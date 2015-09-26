@@ -77,19 +77,27 @@ public class ChooseAreaActivity extends Activity {
     private List<String> dataList = new ArrayList<>();
     private ArrayAdapter<String> adapter;
 
-    private MyHttpCallbackListener listener;
 
     private CoolWeatherDB db;
 
-    private String str;
+    private MyRunnable myRunnable;
+
+    private LocationUtil lu;
+
+    private Location location;
 
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if (msg.what == 0) {
-                adapter.notifyDataSetChanged();
+            switch (msg.what) {
+                case 0:
+                    adapter.notifyDataSetChanged();
+                    break;
+                case 1:
+                    tv_prompt.setText("定位结果:" + (String) msg.obj);
             }
+
         }
     };
 
@@ -99,7 +107,6 @@ public class ChooseAreaActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.activity_choosearea);
-
 
         isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity", false);
 
@@ -114,50 +121,79 @@ public class ChooseAreaActivity extends Activity {
         init();
         queryProvinces(); //启动加载省级数据
 
-        final LocationUtil lu = new LocationUtil();
+        //开启定位TextView
+        tv_prompt.setVisibility(View.VISIBLE);
+        tv_prompt.setText("正在定位");
 
-        Location location = lu.requestLocation(this);
+        lu = new LocationUtil();
+        //获取location对象
+        location = lu.requestLocation(this);
 
-        ////////
-        //new ObtainProvinceSet().execute("http://flash.weather.com.cn/wmaps/xml/china.xml");
-        //new ObtainCitySet().execute("http://flash.weather.com.cn/wmaps/xml/shanxi.xml", "shanxi");
-        ///////
-
-
-        try {
-            str = URLEncoder.encode("晋城", "utf-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        if (location != null) {
+        if (location != null) {  //获取位置成功
             //Log.d("ChooseAreaActivity", "----->直接获取位置信息");
 
-            String address = getAddress(location2coordinate(location));
+            String response = HttpUtil.cityNameFromCoord(location2coordinate(location));
+            //HttpUtil.sendHttpRequest(address, listener);
+            //设置TextView显示位置
 
-            HttpUtil.sendHttpRequest(address, listener);
-        } else {
+            HttpUtil.sendHttpRequest(response, new HttpCallbackListener() {
+                @Override
+                public void onFinish(String response) {
+                    //获取服务器返回的字符串
+                    String cityName = HttpUtil.parseCityName(response);
+                    Message message = Message.obtain();
+                    message.obj = cityName;
+                    message.what = 1;
+                    handler.sendMessage(message);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.d("ChooseAreaActivity", "连接失败");
+                }
+            });
+
+            tv_prompt.setText("");
+        } else {  //未定位成功，请求开启位置更新功能
             lu.requestLocationUpdates(new ObtainLocationListener() {
                 @Override
                 public void locationUpdates(Location location) {
                     if (location != null) {
                         Log.d("ChooseAreaActivity", "----->通过监听位置更新，获取信息");
                         String address = getAddress(location2coordinate(location));
-                        HttpUtil.sendHttpRequest(address, listener);
-                        lu.removeLocationUpdates();
+                        //HttpUtil.sendHttpRequest(address, listener);
+                        lu.removeLocationUpdates();   //关闭更新
                         Log.d("ChooseAreaActivity", "关闭监听位置更新");
+                        tv_prompt.setText(address);  //显示定位结果
                     }
                 }
             });
         }
+        myRunnable = new MyRunnable();
+        handler.postDelayed(myRunnable, 10000);
 
+
+        ////////
+        //new ObtainProvinceSet().execute("http://flash.weather.com.cn/wmaps/xml/china.xml");
+        //new ObtainCitySet().execute("http://flash.weather.com.cn/wmaps/xml/shanxi.xml", "shanxi");
+        ///////
+
+    }
+
+    private class MyRunnable implements Runnable {
+        public void run() {
+            //10秒后进行判断
+            if (location == null && lu.isLocationListener) {
+            tv_prompt.setText("好像定位失败了哦");
+                lu.removeLocationUpdates();
+            }
+        }
     }
 
     /**
      * 初始化
      */
     private void init() {
-        listener = new MyHttpCallbackListener();
         tv_prompt = (TextView) findViewById(R.id.tv_prompt);
         tv_title = (TextView) findViewById(R.id.tv_title);
         lv_list = (ListView) findViewById(R.id.lv_list);
@@ -182,6 +218,20 @@ public class ChooseAreaActivity extends Activity {
                     finish();
                 }
 
+            }
+        });
+
+        tv_prompt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!"经纬度解析失败".equals(tv_prompt.getText())) {
+                    Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+                    String city_name = tv_prompt.getText().toString();
+
+                    intent.putExtra("city_name", city_name.split(":")[1]);
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
     }
@@ -380,5 +430,14 @@ public class ChooseAreaActivity extends Activity {
         public void onError(Exception e) {
 
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (location == null && lu.isLocationListener) {
+            lu.removeLocationUpdates();
+        }
+        handler.removeCallbacks(myRunnable);
     }
 }
