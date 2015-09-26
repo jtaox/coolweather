@@ -3,10 +3,12 @@ package com.jtao.coolweather.activity;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -46,6 +48,8 @@ public class ChooseAreaActivity extends Activity {
 
     private ProgressDialog progressDialog;
 
+    private boolean isFromWeatherActivity;
+
     /**
      * 省列表
      */
@@ -79,11 +83,11 @@ public class ChooseAreaActivity extends Activity {
 
     private String str;
 
-    private Handler handler = new Handler(){
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if(msg.what == 0){
+            if (msg.what == 0) {
                 adapter.notifyDataSetChanged();
             }
         }
@@ -95,6 +99,17 @@ public class ChooseAreaActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.activity_choosearea);
+
+
+        isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity", false);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) { //如果已经选择了城市
+            Intent intent = new Intent(this, WeatherActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
 
         init();
         queryProvinces(); //启动加载省级数据
@@ -156,10 +171,10 @@ public class ChooseAreaActivity extends Activity {
         lv_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(currentLevel == LEVEL_PROVINCE){
+                if (currentLevel == LEVEL_PROVINCE) {
                     selectedProvince = provinceList.get(position);
                     queryCity();
-                } else if(currentLevel == LEVEL_CITY){
+                } else if (currentLevel == LEVEL_CITY) {
                     String cityName = cityList.get(position).getCityName();
                     Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
                     intent.putExtra("city_name", cityName);
@@ -174,13 +189,13 @@ public class ChooseAreaActivity extends Activity {
     /**
      * 查询指定省下所有城市名，优先从数据库中查找，如果没有数据，则从接口获取
      */
-    private void queryCity(){
+    private void queryCity() {
         cityList = db.loadCities(selectedProvince.getPyName());
-        if(cityList.size() > 0){  //数据库中有数据
+        if (cityList.size() > 0) {  //数据库中有数据
             dataList.clear();
-             for(City city : cityList){
-                 dataList.add(city.getCityName());
-             }
+            for (City city : cityList) {
+                dataList.add(city.getCityName());
+            }
             dataChanged(selectedProvince.getQuName(), LEVEL_CITY);
         } else {
             //从服务器获取
@@ -202,7 +217,7 @@ public class ChooseAreaActivity extends Activity {
             dataChanged("中国", LEVEL_PROVINCE);
         } else {
             //通过服务器获取
-            queryFromServer(null,"province");
+            queryFromServer(null, "province");
             /*new ObtainProvinceSet().execute("http://flash.weather.com.cn/wmaps/xml/china.xml");
             provinceList = db.loadProvinces();
             if (provinceList.size() > 0) {
@@ -258,10 +273,10 @@ public class ChooseAreaActivity extends Activity {
 
     }
 
-    private void queryFromServer(final String provinceName, final String type){
+    private void queryFromServer(final String provinceName, final String type) {
 
         final String address;
-        if(!TextUtils.isEmpty(provinceName)){
+        if (!TextUtils.isEmpty(provinceName)) {
             address = "http://flash.weather.com.cn/wmaps/xml/" + provinceName.trim() + ".xml";
         } else {
             address = "http://flash.weather.com.cn/wmaps/xml/china.xml";
@@ -315,8 +330,8 @@ public class ChooseAreaActivity extends Activity {
     /**
      * 打开进度对话框
      */
-    private void showProgressDialog(){
-        if(progressDialog == null){
+    private void showProgressDialog() {
+        if (progressDialog == null) {
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage("正在加载中...");
             progressDialog.setCanceledOnTouchOutside(false);
@@ -324,26 +339,32 @@ public class ChooseAreaActivity extends Activity {
         progressDialog.show();
     }
 
-    private void closeProgressDialog(){
-        if(progressDialog != null){
+    private void closeProgressDialog() {
+        if (progressDialog != null) {
             progressDialog.dismiss();
         }
     }
 
     private long currentTiem = 0;
+
     /**
      * 捕获返回键，根据等级判断应该返回省列表，还是退出
      */
     @Override
     public void onBackPressed() {
-        if(currentLevel == LEVEL_PROVINCE){
+        if (isFromWeatherActivity) {
+            //如果是从WeatherActivity跳转过来的，按下返回键应该重新回去
+            Intent intent = new Intent(this, WeatherActivity.class);
+            startActivity(intent);
+            finish();
+        } else if (currentLevel == LEVEL_PROVINCE) {
             //finish();
-            if((System.currentTimeMillis() - currentTiem) < 2000){
+            if ((System.currentTimeMillis() - currentTiem) < 2000) {
                 finish();
             }
             currentTiem = System.currentTimeMillis();
             Toast.makeText(ChooseAreaActivity.this, "再按一次推出程序", Toast.LENGTH_SHORT).show();
-        } else if(currentLevel == LEVEL_CITY){
+        } else if (currentLevel == LEVEL_CITY) {
             queryProvinces();
         }
     }
