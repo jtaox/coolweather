@@ -21,6 +21,9 @@ import com.jtao.coolweather.util.Utility;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by jtaob on 2015/9/24.
@@ -46,10 +49,6 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
      */
     private TextView temp1Text;
     /**
-     * 用于显示气温2
-     */
-    private TextView temp2Text;
-    /**
      * 用于显示当前日期
      */
     private TextView currentDateText;
@@ -74,7 +73,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         String cityName = getIntent().getStringExtra("city_name");
 
         if (TextUtils.isEmpty(cityName)) {  //
-
+            showWeather();
         } else { //查询天气
             publicText.setText("同步中...");
             Log.d("ChooseAreaActivity", "----->" + cityName + "<----");
@@ -136,10 +135,12 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
     private void showWeather(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         cityNameText.setText(prefs.getString("city_name", ""));
-        temp2Text.setText(prefs.getString("today_temperature", ""));
+        temp1Text.setText(prefs.getString("today_temperature", ""));
         weatherDespText.setText(prefs.getString("today_weather", ""));
-        publicText.setText("今天" + prefs.getString("today_date", ""));
-        currentDateText.setText(prefs.getString("data_date", ""));
+       //publicText.setText("今天" + prefs.getString("today_date", ""));
+        SimpleDateFormat sdf = new SimpleDateFormat("M月d日k点m分", Locale.CHINA);
+        publicText.setText("更新于" + sdf.format(new Date(prefs.getLong("my_date", 0))));
+        currentDateText.setText(prefs.getString("today_date", ""));
         weatherInfoLayout.setVisibility(View.VISIBLE);
         cityNameText.setVisibility(View.VISIBLE);
     }
@@ -170,7 +171,6 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         publicText = (TextView) findViewById(R.id.tv_public_text);
         weatherDespText = (TextView) findViewById(R.id.tv_weather_desp);
         temp1Text = (TextView) findViewById(R.id.temp1);
-        temp2Text = (TextView) findViewById(R.id.temp2);
 
         refreshWeather = (Button) findViewById(R.id.refresh_weather);
         switchCity = (Button) findViewById(R.id.switch_city);

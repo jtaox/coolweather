@@ -79,7 +79,6 @@ public class Utility {
 
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy年M月d日", Locale.CHINA);
         //存入基本信息
         editor.putBoolean("city_selected", true);
         editor.putString("city_name", weather.getCurrentCity());
@@ -111,6 +110,7 @@ public class Utility {
         editor.putString(key + "_weather", wd.weather);
         editor.putString(key + "_wind", wd.wind);
         editor.putString(key + "_temperature", wd.temperature);
+        editor.commit();
     }
 
     private static void saveIndex(Index index, SharedPreferences.Editor editor){
