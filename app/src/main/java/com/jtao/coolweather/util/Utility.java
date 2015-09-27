@@ -26,7 +26,7 @@ public class Utility {
      *
      * @param response
      */
-    public static Weather handleWeaeherResponse(String response) {
+    public static Weather handleWeatherResponst(String response) {
         Weather weather = new Weather();
         try {
             JSONObject jsonObject = new JSONObject(response);
@@ -67,6 +67,12 @@ public class Utility {
             e.printStackTrace();
             return null;
         }
+    }
+
+
+    public static String obtainSPSCityName(Context context){
+        SharedPreferences spfs = PreferenceManager.getDefaultSharedPreferences(context);
+        return spfs.getString("city_name", null);
     }
 
     /**

@@ -73,7 +73,14 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         String cityName = getIntent().getStringExtra("city_name");
 
         if (TextUtils.isEmpty(cityName)) {  //
-            showWeather();
+            //showWeather();
+            //修改为打开自动更新
+            //queryWeatherInfo(Utility.obtainSPSCityName(WeatherActivity.this));
+            String cn = Utility.obtainSPSCityName(WeatherActivity.this);
+            if(!TextUtils.isEmpty(cn)){
+                queryWeatherInfo(cn);
+            }
+
         } else { //查询天气
             publicText.setText("同步中...");
             Log.d("ChooseAreaActivity", "----->" + cityName + "<----");
@@ -100,7 +107,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
             @Override
             public void onFinish(String response) {
                 Log.d("ChooseAreaActivity", "----->" + response + "<----");
-                final Weather weather = Utility.handleWeaeherResponse(response);
+                final Weather weather = Utility.handleWeatherResponst(response);
                 if (weather == null) {
                     //服务器返回结果异常
                     Log.d("ChooseAreaActivity", "服务器返回数据异常");
