@@ -78,6 +78,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
             //queryWeatherInfo(Utility.obtainSPSCityName(WeatherActivity.this));
             String cn = Utility.obtainSPSCityName(WeatherActivity.this);
             if(!TextUtils.isEmpty(cn)){
+                publicText.setText("正在更新中...");
                 queryWeatherInfo(cn);
             }
 
