@@ -96,6 +96,9 @@ public class ChooseAreaActivity extends Activity {
                     break;
                 case 1:
                     tv_prompt.setText("定位结果:" + (String) msg.obj);
+                    break;
+                case 2:
+                    Toast.makeText(ChooseAreaActivity.this, "加载失败...", Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -111,7 +114,7 @@ public class ChooseAreaActivity extends Activity {
         isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity", false);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) { //如果已经选择了城市
+        if (prefs.getBoolean("city_selected", false)) { //如果已经选择了城市
             Intent intent = new Intent(this, WeatherActivity.class);
             startActivity(intent);
             finish();
@@ -371,7 +374,7 @@ public class ChooseAreaActivity extends Activity {
             @Override
             public void onError(Exception e) {
                 closeProgressDialog();
-                Toast.makeText(ChooseAreaActivity.this, "加载失败...", Toast.LENGTH_SHORT).show();
+                handler.sendEmptyMessage(2);
             }
         });
 

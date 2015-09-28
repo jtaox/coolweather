@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.jtao.coolweather.R;
 import com.jtao.coolweather.model.Weather;
+import com.jtao.coolweather.service.AutoUpdateService;
 import com.jtao.coolweather.util.HttpUtil;
 import com.jtao.coolweather.util.Utility;
 
@@ -184,6 +185,9 @@ public class WeatherActivity extends Activity implements View.OnClickListener {
         switchCity = (Button) findViewById(R.id.switch_city);
         refreshWeather.setOnClickListener(this);
         switchCity.setOnClickListener(this);
+
+        Intent i = new Intent(this, AutoUpdateService.class);
+        startService(i);
     }
 
     @Override
