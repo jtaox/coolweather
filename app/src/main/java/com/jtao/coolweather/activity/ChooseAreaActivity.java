@@ -268,6 +268,7 @@ public class ChooseAreaActivity extends Activity {
                 dataList.add(province.getQuName());
             }
             dataChanged("中国", LEVEL_PROVINCE);
+            //currentLevel = LEVEL_PROVINCE;
         } else {
             //通过服务器获取
             queryFromServer(null, "province");
@@ -375,6 +376,7 @@ public class ChooseAreaActivity extends Activity {
             public void onError(Exception e) {
                 closeProgressDialog();
                 handler.sendEmptyMessage(2);
+                currentLevel = LEVEL_PROVINCE;
             }
         });
 
